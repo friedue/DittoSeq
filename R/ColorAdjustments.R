@@ -10,9 +10,13 @@
 #' Darken("blue") #"blue" = "#0000FF"
 #' #Output: "#0000BF"
 #' Darken(dittoColors()[1:8]) #Works for multiple color inputs as well.
+#'
+#' @author Daniel Bunis
 #' @export
-Darken <- function(colors, percent.change = 0.25, relative = TRUE){
-  colorspace::darken(colors, amount = percent.change, space = "HLS", fixup = TRUE, method = ifelse(relative,"relative","absolute"))
+Darken <- function(colors, percent.change = 0.25, relative = TRUE) {
+    colorspace::darken(
+        colors, amount = percent.change, space = "HLS", fixup = TRUE,
+        method = ifelse(relative, "relative", "absolute"))
 }
 
 #### Lighten: For lightening colors ####
@@ -27,9 +31,13 @@ Darken <- function(colors, percent.change = 0.25, relative = TRUE){
 #' Lighten("blue") #"blue" = "#0000FF"
 #' #Output: "#4040FF"
 #' Lighten(dittoColors()[1:8]) #Works for multiple color inputs as well.
+#'
+#' @author Daniel Bunis
 #' @export
-Lighten <- function(colors, percent.change = 0.25, relative = TRUE){
-  colorspace::lighten(colors, amount = percent.change, space = "HLS", fixup = TRUE, method = ifelse(relative,"relative","absolute"))
+Lighten <- function(colors, percent.change = 0.25, relative = TRUE) {
+    colorspace::lighten(
+        colors, amount = percent.change, space = "HLS", fixup = TRUE,
+        method = ifelse(relative, "relative", "absolute"))
 }
 
 #### Simulate: For simulating what a plot would look like as seen by a colorblind person ####
@@ -39,22 +47,34 @@ Lighten <- function(colors, percent.change = 0.25, relative = TRUE){
 #' @param type The type of colorblindness that you want to simulate for. Options: "deutan", "protan", "tritan". Anything else, and you will get an error.
 #' @param plot.function The plotting function that you want to use/simulate. not quoted. and make sure to remove the () that R will try to add.
 #' @param ... other paramters that can be given to dittoSeq plotting functions, including color.panel, used in exactly the same way they are used for those functions. (contrary to the look of this documentation, color.panel will still default to dittoColors() when not provided.)
-#' @param color.panel The set of colors to be used.  Not required to be given, as contrary to the look of this documentation, it will still default to dittoColors() when not provided.
-#' @return Outputs a dittoSeq plot with the color.panel updated as it might look to a colorblind individual. Note: Does not currently work for DBHeatmap or for continuous variable plotting in DBDimPlot.
+#' @param color.panel,min.color,max.color The set of colors to be used.
+#' @return Outputs a dittoSeq plot with the color.panel / min.color & max.color updated as it might look to a colorblind individual.
+#'
+#' Note: Does not currently adjust dittoHeatmap.
 #' @examples
-#' library(Seurat)
-#' pbmc <- Seurat::pbmc_small
-#' Simulate("deutan", DBDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
-#' Simulate("protan", DBDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
-#' Simulate("tritan", DBDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
+#' example(importDittoBulk, echo = FALSE)
+#' Simulate("deutan", dittoDimPlot, object=myRNA, var="clustering", size = 2)
+#' Simulate("protan", dittoDimPlot, myRNA, "clustering", size = 2)
+#' Simulate("tritan", dittoDimPlot, myRNA, "clustering", size = 2)
+#'
+#' @author Daniel Bunis
+#' @importFrom colorspace deutan protan tritan
 #' @export
-Simulate <- function(type = "deutan", plot.function, ..., color.panel = dittoColors()){
-  #Check that type was given properly
-  if(!(type=="deutan"|type=="protan"|type=="tritan")){
-    return("Error: type must be 'deutan', 'protan', or 'tritan'")
-  }
-  #Simulate the color panel for the given color blindness type.
-  color.p <- eval(expr = parse(text = paste0("colorspace::",type,"(color.panel)")))
-  #Make the plot!
-  plot.function(color.panel = color.p, ... )
+Simulate <- function(
+    type = c("deutan","protan","tritan"),
+    plot.function, ..., color.panel = dittoColors(),
+    min.color = "#F0E442", max.color = "#0072B2") {
+
+    type <- match.arg(type)
+
+    color.adj <- eval(expr = parse(text = paste0(
+        "colorspace::",type,"(color.panel)")))
+    min.adj <- eval(expr = parse(text = paste0(
+        "colorspace::",type,"(min.color)")))
+    max.adj <- eval(expr = parse(text = paste0(
+        "colorspace::",type,"(max.color)")))
+
+    #Make the plot!
+    plot.function(color.panel = color.adj, min.color = min.adj,
+                  max.color = max.adj, ... )
 }

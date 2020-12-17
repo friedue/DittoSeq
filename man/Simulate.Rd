@@ -4,8 +4,14 @@
 \alias{Simulate}
 \title{Simulates what a colorblind person would see for any dittoSeq plot!}
 \usage{
-Simulate(type = "deutan", plot.function, ...,
-  color.panel = dittoColors())
+Simulate(
+  type = c("deutan", "protan", "tritan"),
+  plot.function,
+  ...,
+  color.panel = dittoColors(),
+  min.color = "#F0E442",
+  max.color = "#0072B2"
+)
 }
 \arguments{
 \item{type}{The type of colorblindness that you want to simulate for. Options: "deutan", "protan", "tritan". Anything else, and you will get an error.}
@@ -14,18 +20,23 @@ Simulate(type = "deutan", plot.function, ...,
 
 \item{...}{other paramters that can be given to dittoSeq plotting functions, including color.panel, used in exactly the same way they are used for those functions. (contrary to the look of this documentation, color.panel will still default to dittoColors() when not provided.)}
 
-\item{color.panel}{The set of colors to be used.  Not required to be given, as contrary to the look of this documentation, it will still default to dittoColors() when not provided.}
+\item{color.panel, min.color, max.color}{The set of colors to be used.}
 }
 \value{
-Outputs a dittoSeq plot with the color.panel updated as it might look to a colorblind individual. Note: Does not currently work for DBHeatmap or for continuous variable plotting in DBDimPlot.
+Outputs a dittoSeq plot with the color.panel / min.color & max.color updated as it might look to a colorblind individual.
+
+Note: Does not currently adjust dittoHeatmap.
 }
 \description{
 Essentially a wrapper function for colorspace's deutan(), protan(), and tritan() functions. This function will output any dittoSeq plot as it might look to an individual with one of the common forms of colorblindness: deutanopia/deutanomaly, the most common, is when the cones mainly responsible for red vision are defective. Protanopia/protanomaly is when the cones mainly responsible for green vision are defective. In tritanopia/tritanomaly, the defective cones are responsible for blue vision. Note: there are more severe color deficiencies that are even more rare. Unfortunately, for these types of color vision deficiency, only non-color methods, like lettering or shapes, will do much to help.
 }
 \examples{
-library(Seurat)
-pbmc <- Seurat::pbmc_small
-Simulate("deutan", DBDimPlot, var = "RNA_snn_res.1", object = "pbmc", size = 2)
-Simulate("protan", DBDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
-Simulate("tritan", DBDimPlot, "RNA_snn_res.1", "pbmc", size = 2)
+example(importDittoBulk, echo = FALSE)
+Simulate("deutan", dittoDimPlot, object=myRNA, var="clustering", size = 2)
+Simulate("protan", dittoDimPlot, myRNA, "clustering", size = 2)
+Simulate("tritan", dittoDimPlot, myRNA, "clustering", size = 2)
+
+}
+\author{
+Daniel Bunis
 }
