@@ -122,7 +122,7 @@
     df
 }
 
-.extract_Reduced_Dim <- function(reduction.use, dim=1, object) {
+.extract_visium_coords <- function(reduction.use, dim=1, object) {
     # Extracts loadings ("embeddings") and suggested plotting label ("name")
     # for an individual dimensionality reduction dimension.
 
@@ -130,22 +130,21 @@
         
         embeds <- reduction.use
         
-    } else if (is(object,"seurat")) {
+    #} else if (is(object,"seurat")) {
+    #    
+    #    embeds <- eval(expr = parse(text = paste0(
+    #        "object@dr$",reduction.use,"@cell.embeddings")))
+    #    colnames(embeds) <- paste0(eval(expr = parse(text = paste0(
+    #        "object@dr$",reduction.use,"@key"))),seq_len(ncol(embeds)))
+    #    
+    #} else if (is(object,"Seurat")) {
+    #    
+    #    .error_if_no_Seurat()
+    #    embeds <- Seurat::Embeddings(object, reduction = reduction.use)
+    #    
+    } else if (is(object,"VisiumExperiment")) {
         
-        embeds <- eval(expr = parse(text = paste0(
-            "object@dr$",reduction.use,"@cell.embeddings")))
-        colnames(embeds) <- paste0(eval(expr = parse(text = paste0(
-            "object@dr$",reduction.use,"@key"))),seq_len(ncol(embeds)))
-        
-    } else if (is(object,"Seurat")) {
-        
-        .error_if_no_Seurat()
-        embeds <- Seurat::Embeddings(object, reduction = reduction.use)
-        
-    } else if (is(object,"SingleCellExperiment")) {
-        
-        embeds <- SingleCellExperiment::reducedDim(
-            object, type = reduction.use, withDimnames=TRUE)
+        embeds <- SpatialExperiment::spatialCoords(object)[, c("pxl_row_in_fullres", "pxl_col_in_fullres"), drop=FALSE]
         if (is.null(colnames(embeds))) {
             colnames(embeds) <-
                 paste0(.gen_key(reduction.use), seq_len(ncol(embeds)))

@@ -247,10 +247,10 @@
 #'     contour.color = "lightblue", # Optional, black by default
 #'     contour.linetype = "dashed") # Optional, solid by default
 
-dittoDimPlot <- function(
+dittoSpotPlot <- function(
   object,
   var,
-  reduction.use = .default_reduction(object),
+  coordinates = .default_coords(object),
   size = 1,
   opacity = 1,
   dim.1 = 1,
@@ -320,10 +320,10 @@ dittoDimPlot <- function(
   }
   
   # Generate the x/y dimensional reduction data and plot titles.
-  xdat <- .extract_Reduced_Dim(reduction.use, dim.1, object)
-  ydat <- .extract_Reduced_Dim(reduction.use, dim.2, object)
-  xlab <- .leave_default_or_null(xlab, xdat$name)
-  ylab <- .leave_default_or_null(ylab, ydat$name)
+  xdat <- .extract_visium_coords(reduction.use, dim.1, object)
+  ydat <- .extract_visium_coords(reduction.use, dim.2, object)
+  xlab <- .leave_default_or_null(xlab, xdat$name) # def.: "make"
+  ylab <- .leave_default_or_null(ylab, ydat$name) # def.: "make"
   main <- .leave_default_or_null(main, var, length(var)!=1)
   legend.title <- .leave_default_or_null(legend.title, var, is.null(shape.by))
   
@@ -337,6 +337,13 @@ dittoDimPlot <- function(
     theme <- theme +
       theme(axis.text.x=element_blank(), axis.text.y=element_blank())
   }
+  
+  #! flipping perhaps not needed anymore
+  #  if (flip_xy_Visium) {
+  ##!x_coord_tmp <- spatialData(spe)[, y_coord]
+  ##!y_coord_tmp <- -1 * spatialData(spe)[, x_coord] + max(spatialData(spe)[, x_coord]) + 1
+  ##!df_plot <- data.frame(x_coord = x_coord_tmp, y_coord = y_coord_tmp)
+}
   
   # Make dataframes and plot
   p.df <- dittoScatterPlot(
